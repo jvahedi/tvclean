@@ -2,7 +2,7 @@
 # Projectivy: hide every tile in the TV Apps row except KEEP. Run with Projectivy home on screen.
 # Hide every tile in Projectivy's TV Apps row except favorites. Only taps a node whose text is exactly "Hide".
 S=$(adb devices | awk '/_adb-tls-connect/{print $1}')
-KEEP='^(Netflix|Paramount\+|Prime Video|HBO Max|YouTube|Apple TV|Disney\+|STARZ|Hulu)$'
+KEEP='^(Netflix|Paramount\+|Prime Video|HBO Max|SmartTube|Apple TV|Disney\+|STARZ|Hulu)$'
 k(){ adb -s $S shell input keyevent "$@"; }
 dump(){ adb -s $S shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1; adb -s $S shell cat /sdcard/ui.xml | tr '>' '\n'; }
 focused(){ dump | grep 'focused="true"' | grep -oE 'content-desc="[^"]+"' | head -1 | cut -d'"' -f2 | sed 's/&amp;/\&/g'; }

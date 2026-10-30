@@ -96,6 +96,15 @@ Lessons (why the modes look like this):
 - Projectivy permissions: TV listings allowed; photos, notifications, usage/crash reports
   declined.
 
+## SmartTube (2026-10-30)
+Ad-free YouTube client, **separate app** (`org.smarttube.stable`) next to the stock YouTube app
+(untouched, hidden from the home row). Installed over adb — "unknown sources" stays off.
+- Source: github.com/yuliskov/SmartTube release `32.68s`, `SmartTube_stable_32.68_armeabi-v7a.apk`
+  (this TV is 32-bit ARM). SHA-256 `2130b23b…cb3a60d9` matched the release page before install.
+- Signed in via yt.be/activate one-time code (revocable in Google account → connected devices).
+- SponsorBlock on (default). Updates come from SmartTube's own update prompt, not Play.
+- Home row: SmartTube takes YouTube's slot (`projectivy/` KEEP/ORDER).
+
 ## Screensaver (2026-10-30)
 One screensaver: **Sony Living Decor** (`screensaver_components`), after 10 min without input;
 standby after ~3 h 55 min of screensaver; auto-off after 24 h without interaction. Google
