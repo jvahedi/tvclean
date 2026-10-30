@@ -1,0 +1,10 @@
+# bloatware — preinstalled promos, store-demo and upsell apps.
+# Format: package   risk   # note
+# Deliberately NOT here: com.sonypicturescore (Sony Pictures Core; may have free credits)
+# User-installed ad-supported apps (Pluto, Tubi, Haystack, Roku Channel...) are a normal
+# uninstall from the TV and aren't managed here.
+
+com.sony.dtv.demosupport           safe   # retail store demo mode
+com.sony.dtv.multiscreendemo       safe   # retail store demo
+com.sony.dtv.promos                safe   # Sony promotions
+com.sony.dtv.sonyselect            safe   # Sony app recommendations

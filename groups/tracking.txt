@@ -1,0 +1,13 @@
+# tracking — things that watch what you do and send it somewhere.
+# Format: package   risk   # note
+#   risk: safe = disable freely; test = apply with --only, then use the TV for a day
+
+tv.samba.ssm                       safe   # Samba TV ACR (screen content recognition)
+tv.samba.ssm.ui                    safe   # Samba TV UI + API service
+com.sonyericsson.idd.agent         safe   # Sony usage-data (IDD) agent
+com.sony.dtv.crashlogcollector     safe   # crash log upload
+com.sony.dtv.sonybugreportsys      safe   # bug report upload
+com.google.android.feedback        safe   # Google feedback reporting
+com.android.tv.feedbackconsent     safe   # feedback consent prompt
+com.sony.dtv.fingerprinterserver   test   # likely content fingerprinting — test picture modes (Auto, Netflix/Prime calibrated), inputs, CEC
+com.android.adservices.api         test   # Android ad measurement — mainline module, may refuse to disable (fine)

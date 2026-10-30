@@ -1,0 +1,7 @@
+# home — the home screen.
+# Format: package   risk   # note
+# PREREQUISITE: a user-installed launcher (e.g. Projectivy). apply refuses without one.
+# NEVER uninstall the replacement while this is disabled — you'd have no home screen.
+# Alternative with no adb: Settings → Accounts → your account → Apps only mode.
+
+com.google.android.apps.tv.launcherx   test   # stock Google TV home (sponsored rows)

@@ -1,0 +1,20 @@
+# Never disable anything matching these (grep -E patterns, one per line).
+# tv.sh apply refuses any package that matches, even if it's in a group file.
+
+^com\.sony\.dtv\.panelsettings          # OLED panel care / pixel refresh
+^com\.sony\.dtv\.calibrationmonitor
+^com\.sony\.dtv\.update                 # firmware updates
+^com\.sony\.dtv\.otaurlprovisioning
+^com\.sony\.dtv\.sensing                # camera / room sensing
+^com\.sony\.dtv\.b2b\.                  # runtime pieces others depend on
+^com\.sony\.dtv\.settings
+^com\.sony\.dtv\.sonysystemservice
+^com\.sony\.dtv\.tvinput
+^com\.mediatek\.
+^vendor\.
+^com\.android\.systemui
+^com\.android\.tv\.settings
+^com\.android\.vending                  # Play Store
+^com\.google\.android\.gms$             # Play Services
+^com\.google\.android\.katniss          # Assistant / search
+^android$
