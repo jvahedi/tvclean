@@ -1,0 +1,9 @@
+# apps — user-installed apps not opened Aug 28–Oct 30 2026 (usage stats), kept installed
+# but disabled: sign-in kept, instant to bring back with `./tv.sh restore <pkg> --yes`.
+# Uninstalled outright (reinstall from Play): Pluto TV, Tubi, The Roku Channel, Haystack News.
+# Format: package   risk   # note
+
+com.peacocktv.peacockandroid        safe   # Peacock
+com.google.android.youtube.tvunplugged safe # YouTube TV
+com.plexapp.android                 safe   # Plex
+com.playstation.remoteplay.tv       safe   # PS Remote Play

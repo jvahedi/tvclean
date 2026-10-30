@@ -259,32 +259,61 @@ cmd_dns() { # dns status | on [--yes] | off [--yes]
 PROJECTIVY_A11Y=com.spocky.projengmenu/.services.ProjectivyAccessibilityService
 a11y_list() { S settings get secure enabled_accessibility_services | sed 's/^null$//'; }
 home_state() {
-  if a11y_list | tr ':' '\n' | grep -qx "$PROJECTIVY_A11Y"; then echo "projectivy (override on; Google TV kept)"
+  local a lx; a11y_list | tr ':' '\n' | grep -qx "$PROJECTIVY_A11Y" && a=1 || a=0
+  lx=$(pkg_state com.google.android.apps.tv.launcherx)
+  if [ $a = 1 ] && [ "$lx" = disabled ]; then echo "projectivy-only"
+  elif [ $a = 1 ]; then echo "hybrid (Projectivy override; Google TV kept for ⚙)"
   else echo "google-tv"; fi
 }
 
-cmd_home() { # home status | projectivy [--yes] | google [--yes] — switch home screen
+LAUNCHERX=com.google.android.apps.tv.launcherx
+SETUPWRAITH=com.google.android.tungsten.setupwraith
+LAUNCHERX_LISTENER=$LAUNCHERX/.coreservices.notificationlistener.TvNotificationListenerService
+
+cmd_home() { # home status | hybrid | projectivy-only | google  [--yes]
   pick_device
-  local action="${1:-status}" yes=0 cur new; [ "${2:-}" = --yes ] && yes=1
-  cur=$(a11y_list)
+  local action="${1:-status}" yes=0; [ "${2:-}" = --yes ] && yes=1
+  # hybrid (current, 2026-10-30): Google TV enabled only so the remote's ⚙ panel works;
+  #   setupwraith disabled; Projectivy's accessibility override keeps Home on Projectivy.
+  # projectivy-only: Google TV disabled too — no ⚙ panel, nothing to fall back to.
+  # google: everything back to stock.
   case "$action" in
-    status) echo "home: $(home_state)";;
-    projectivy)
-      S pm list packages | grep -qx package:com.spocky.projengmenu || die "Projectivy not installed"
-      new=$(printf '%s\n%s\n' "$cur" "$PROJECTIVY_A11Y" | tr ':' '\n' | awk 'NF && !seen[$0]++' | paste -sd: -)
-      if [ $yes = 1 ]; then
-        S settings put secure enabled_accessibility_services "$new"; S settings put secure accessibility_enabled 1
-        printf '%s\thome\tprojectivy\t-\n' "$(date +%FT%T)" >> "$LOG"; cmd_home status
-      else echo "would enable Projectivy override (pass --yes)"; fi;;
-    google)
-      new=$(echo "$cur" | tr ':' '\n' | grep -vx "$PROJECTIVY_A11Y" | awk NF | paste -sd: -)
-      if [ $yes = 1 ]; then
-        if [ -n "$new" ]; then S settings put secure enabled_accessibility_services "$new"
-        else S settings delete secure enabled_accessibility_services >/dev/null; S settings put secure accessibility_enabled 0; fi
-        printf '%s\thome\tgoogle-tv\t-\n' "$(date +%FT%T)" >> "$LOG"; cmd_home status
-      else echo "would turn off Projectivy override, Google TV home returns (pass --yes)"; fi;;
-    *) die "home status|projectivy|google";;
+    status)
+      echo "home: $(home_state)"
+      echo "  launcherx=$(pkg_state $LAUNCHERX) setupwraith=$(pkg_state $SETUPWRAITH)"
+      echo "  accessibility=$(a11y_list)";;
+    hybrid|projectivy-only|google)
+      [ $yes = 1 ] || { echo "would switch home to $action (pass --yes)"; return; }
+      case "$action" in
+        hybrid)
+          [ "$(pkg_state $SETUPWRAITH)" = enabled ] && { S pm disable-user --user 0 $SETUPWRAITH >/dev/null; printf '%s\tdisable\t%s\thome\n' "$(date +%FT%T)" $SETUPWRAITH >> "$LOG"; }
+          [ "$(pkg_state $LAUNCHERX)" = disabled ] && { S pm enable --user 0 $LAUNCHERX >/dev/null; printf '%s\tenable\t%s\t-\n' "$(date +%FT%T)" $LAUNCHERX >> "$LOG"; }
+          S cmd notification allow_listener $LAUNCHERX_LISTENER   # lost on disable/enable → "missing important alerts"
+          set_projectivy_a11y on;;
+        projectivy-only)
+          [ "$(pkg_state $SETUPWRAITH)" = enabled ] && { S pm disable-user --user 0 $SETUPWRAITH >/dev/null; printf '%s\tdisable\t%s\thome\n' "$(date +%FT%T)" $SETUPWRAITH >> "$LOG"; }
+          [ "$(pkg_state $LAUNCHERX)" = enabled ] && { S pm disable-user --user 0 $LAUNCHERX >/dev/null; printf '%s\tdisable\t%s\thome\n' "$(date +%FT%T)" $LAUNCHERX >> "$LOG"; }
+          set_projectivy_a11y on;;
+        google)
+          # launcherx first, then setupwraith (see groups/home.txt — reverse order loops)
+          [ "$(pkg_state $LAUNCHERX)" = disabled ] && { S pm enable --user 0 $LAUNCHERX >/dev/null; printf '%s\tenable\t%s\t-\n' "$(date +%FT%T)" $LAUNCHERX >> "$LOG"; }
+          S cmd notification allow_listener $LAUNCHERX_LISTENER
+          [ "$(pkg_state $SETUPWRAITH)" = disabled ] && { S pm enable --user 0 $SETUPWRAITH >/dev/null; printf '%s\tenable\t%s\t-\n' "$(date +%FT%T)" $SETUPWRAITH >> "$LOG"; }
+          set_projectivy_a11y off;;
+      esac
+      printf '%s\thome\t%s\t-\n' "$(date +%FT%T)" "$action" >> "$LOG"
+      cmd_home status;;
+    *) die "home status|hybrid|projectivy-only|google";;
   esac
+}
+
+# Only Projectivy's service: a second accessibility service (Button Mapper) broke its override.
+set_projectivy_a11y() {
+  if [ "$1" = on ]; then
+    S settings put secure enabled_accessibility_services "$PROJECTIVY_A11Y"; S settings put secure accessibility_enabled 1
+  else
+    S settings delete secure enabled_accessibility_services >/dev/null; S settings put secure accessibility_enabled 0
+  fi
 }
 
 cmd_show() { # show every group with live state

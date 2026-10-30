@@ -68,28 +68,38 @@ native-tracking option). Watch the log a day; allow any Sony update domains that
 
 Don't use Mullvad DNS — its public encrypted resolvers shut down 2026-11-02.
 
-## Home screen (current: Projectivy only, 2026-10-30)
+## Home screen (current: **hybrid**, 2026-10-30)
 
-Google TV's home (`launcherx`) and the setup wizard (`setupwraith`) are **disabled**
-(`groups/home.txt`), so every Home press, wake from screensaver and reboot lands on
-Projectivy. Keeping both (Projectivy's accessibility override) let Google TV come back
-after the screensaver.
+`./tv.sh home status | hybrid | projectivy-only | google --yes`
 
-- **Order matters:** disable setupwraith *before* launcherx. The reverse order caused a
-  HOME relaunch loop (2,465 launches) that pegged the CPU and dropped Wi-Fi; `apply` now
-  refuses it. `restore` re-enables launcherx first, then setupwraith.
-- Switch back to Google TV: `./tv.sh restore com.google.android.apps.tv.launcherx --yes`
-  then `./tv.sh restore com.google.android.tungsten.setupwraith --yes`.
-- Still works: Input button (Sony's input bar), voice on the remote mic, full Settings
-  (Projectivy → Settings row → Android settings).
-- **Lost:** the remote's ⚙ quick-settings panel (it lived in launcherx; ⚙ sends
-  TOGGLE_NOTIFICATION_HANDLER_PANEL and nothing else handles it). Projectivy can't remap
-  keys; a key-mapper app (e.g. Button Mapper) could.
-- Layout: TV Apps (Netflix, Paramount+, Prime Video, HBO Max, YouTube, Apple TV, Disney+,
-  STARZ, Hulu) → Watch Next → Inputs → Settings; other apps hidden, in *All apps*.
+| mode | Google TV (`launcherx`) | setup wizard | Projectivy override | ⚙ quick panel |
+|---|---|---|---|---|
+| **hybrid** (current) | enabled | disabled | on | ✅ |
+| projectivy-only | disabled | disabled | on | ❌ (nothing else may answer ⚙) |
+| google | enabled | enabled | off | ✅ |
+
+Tested in hybrid: Home → Projectivy (3/3); waking from the real screensaver → straight to
+Projectivy (Google TV never resumed); ⚙ opens Google TV's panel over Projectivy.
+
+Lessons (why the modes look like this):
+- **⚙ is hard-wired to Google TV**: SystemUI sends TOGGLE_NOTIFICATION_HANDLER_PANEL only to
+  `config_notificationHandlerPackage` = launcherx. No key mapper can catch ⚙ (Android
+  consumes it first).
+- **Only one accessibility service.** Button Mapper alongside Projectivy broke the override
+  (Google TV stuck after wake). `home` sets Projectivy's service alone.
+- **Disabling/re-enabling launcherx drops its notification access** → "You're missing
+  important alerts" in the ⚙ panel. `home hybrid`/`google` re-grant it.
+- **Order:** setupwraith off *before* launcherx off; launcherx on *before* setupwraith on.
+  The wrong order loops HOME (2,465 relaunches) and dropped Wi-Fi.
+- Projectivy layout: TV Apps (Netflix, Paramount+, Prime Video, HBO Max, YouTube, Apple TV,
+  Disney+, STARZ, Hulu) → Watch Next → Inputs → Settings. Rebuild with `projectivy/`.
 - Projectivy permissions: TV listings allowed; photos, notifications, usage/crash reports
-  declined. Its accessibility service is still on (harmless; `./tv.sh home google` turns
-  it off).
+  declined.
+
+## Apps (2026-10-30)
+Uninstalled (never opened Aug 28–Oct 30): Pluto TV, Tubi, The Roku Channel, Haystack News.
+Disabled, sign-in kept (`groups/apps.txt`): Peacock, YouTube TV, Plex, PS Remote Play.
+Hidden from the home row only: everything not in the favorites (still in *All apps*).
 
 ## After a firmware update
 
