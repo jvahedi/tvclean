@@ -54,9 +54,19 @@ Driving the TV from the Mac: `adb shell input keyevent KEYCODE_DPAD_DOWN` (…`_
 `_BACK`, `_HOME`), `adb shell input tap X Y` (1920×1080), `adb exec-out screencap -p > s.png`,
 `adb shell uiautomator dump` to find what's focused.
 
-### DNS lists
-Perflyst *SmartTV*, HaGeZi *Native Tracker* lists, plus one general ad list. Watch the
-NextDNS log for a day and allow any Sony update domains that get blocked.
+### DNS
+**Current: AdGuard DNS** (`dns.adguard-dns.com`, set 2026-10-30). No account. Verified on the
+TV: private DNS validated; doubleclick / app-measurement → blocked; YouTube, Netflix,
+Google, Play resolve normally. It does **not** block Samba's domains (flingo.tv, samba.tv) —
+fine while the Samba packages stay disabled (`verify` catches re-enables).
+
+**Upgrade path: NextDNS** (free account, 300k queries/mo) if you want a log of what the TV
+contacts, or a Samba backstop. Set `PRIVATE_DNS_HOST=<id>.dns.nextdns.io`, run
+`./tv.sh dns on --yes`. In NextDNS: keep the default ads & trackers list, add a general
+list (e.g. HaGeZi), and denylist `samba.tv` and `flingo.tv` (NextDNS has no Sony/Samba
+native-tracking option). Watch the log a day; allow any Sony update domains that get blocked.
+
+Don't use Mullvad DNS — its public encrypted resolvers shut down 2026-11-02.
 
 ## After a firmware update
 
