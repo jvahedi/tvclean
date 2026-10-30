@@ -9,5 +9,5 @@ com.sony.dtv.crashlogcollector     safe   # crash log upload
 com.sony.dtv.sonybugreportsys      safe   # bug report upload
 com.google.android.feedback        safe   # Google feedback reporting
 com.android.tv.feedbackconsent     safe   # feedback consent prompt
-com.sony.dtv.fingerprinterserver   test   # likely content fingerprinting — test picture modes (Auto, Netflix/Prime calibrated), inputs, CEC
+com.sony.dtv.fingerprinterserver   safe   # Sony→Samba ACR bridge (SambaContentProvider, Samba perms, EPG read). Tested 2026-10-30: picture, inputs fine
 com.android.adservices.api         test   # Android ad measurement — mainline module, may refuse to disable (fine)
