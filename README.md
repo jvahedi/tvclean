@@ -29,7 +29,7 @@ Grouped by concept. Each package also has a **risk** tag:
 | **dns** | Private DNS (NextDNS/AdGuard) blocks trackers + ads network-wide | `./tv.sh dns on --yes` |
 | **tracking** (`groups/tracking.txt`) | Samba TV ACR, Sony IDD, crash/feedback upload; *test:* fingerprinter, adservices | `./tv.sh apply tracking --yes` |
 | **bloatware** (`groups/bloatware.txt`) | store demo, Sony promos, Sony Select | `./tv.sh apply bloatware --yes` |
-| **home** (`groups/home.txt`) | stock Google TV home screen (*test*) | install Projectivy, then `./tv.sh apply home --only com.google.android.apps.tv.launcherx --yes` — refuses without a user-installed launcher |
+| **home** | Projectivy as home, Google TV kept installed (current) | `./tv.sh home projectivy --yes` / `./tv.sh home google --yes` — see *Home screen* below. `groups/home.txt` (disable Google TV entirely) is the harder fallback, unused |
 | **replacements** (`groups/replacements.md`) | Projectivy, SmartTube, uninstall unused FAST apps | by hand |
 
 To add a package: put it in the right group file as `package  safe|test  # what it is`.
@@ -68,7 +68,22 @@ native-tracking option). Watch the log a day; allow any Sony update domains that
 
 Don't use Mullvad DNS — its public encrypted resolvers shut down 2026-11-02.
 
+## Home screen (current: Projectivy, set up 2026-10-30)
+
+Google TV ignores `set-home-activity`, so Projectivy's **Override current launcher** catches
+Home through its accessibility service. Google TV stays installed and enabled.
+
+- Switch back: `./tv.sh home google --yes` (or TV Settings → Accessibility → Projectivy off).
+- Survives reboots (checked).
+- Layout: TV Apps (9 favorites, Google TV order) → Watch Next (= Continue Watching) →
+  Inputs → Settings. Everything else is hidden from the row, still in *All apps*.
+- Projectivy permissions: TV listings **allowed** (feeds Watch Next); photos, notification
+  access, usage/crash reports **declined**.
+
 ## After a firmware update
+
+Wireless debugging turns itself **off on every reboot** — re-enable it in Developer options
+first (no re-pairing needed), then:
 
 ```bash
 ./tv.sh snapshot        # new snapshot of the updated TV
@@ -91,6 +106,7 @@ anything worth disabling to a group file (with a risk tag and comment) and apply
 ./tv.sh reapply [--yes]            re-disable after an update
 ./tv.sh restore [pkg] [--yes]      re-enable everything applied (or one package)
 ./tv.sh dns status|on|off [--yes]
+./tv.sh home status|projectivy|google [--yes]
 ```
 
 ## Adapting to another TV

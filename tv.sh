@@ -190,7 +190,7 @@ cmd_verify() { # every package ever disabled via apply should still be disabled 
     esac
   done
   echo "private dns: $(S settings get global private_dns_mode) $(S settings get global private_dns_specifier)"
-  echo "home: $(S cmd package resolve-activity --brief -c android.intent.category.HOME -a android.intent.action.MAIN | tail -1)"
+  echo "home: $(home_state)"
   [ $bad = 0 ] && info "all good" || { info "something was re-enabled (update?). Re-run: ./tv.sh reapply --yes"; return 1; }
 }
 
@@ -250,6 +250,39 @@ cmd_dns() { # dns status | on [--yes] | off [--yes]
   esac
 }
 
+# Google TV ignores set-home-activity, so Projectivy takes over Home through its
+# accessibility service ("Override current launcher"). Google TV stays installed.
+PROJECTIVY_A11Y=com.spocky.projengmenu/.services.ProjectivyAccessibilityService
+a11y_list() { S settings get secure enabled_accessibility_services | sed 's/^null$//'; }
+home_state() {
+  if a11y_list | tr ':' '\n' | grep -qx "$PROJECTIVY_A11Y"; then echo "projectivy (override on; Google TV kept)"
+  else echo "google-tv"; fi
+}
+
+cmd_home() { # home status | projectivy [--yes] | google [--yes] — switch home screen
+  pick_device
+  local action="${1:-status}" yes=0 cur new; [ "${2:-}" = --yes ] && yes=1
+  cur=$(a11y_list)
+  case "$action" in
+    status) echo "home: $(home_state)";;
+    projectivy)
+      S pm list packages | grep -qx package:com.spocky.projengmenu || die "Projectivy not installed"
+      new=$(printf '%s\n%s\n' "$cur" "$PROJECTIVY_A11Y" | tr ':' '\n' | awk 'NF && !seen[$0]++' | paste -sd: -)
+      if [ $yes = 1 ]; then
+        S settings put secure enabled_accessibility_services "$new"; S settings put secure accessibility_enabled 1
+        printf '%s\thome\tprojectivy\t-\n' "$(date +%FT%T)" >> "$LOG"; cmd_home status
+      else echo "would enable Projectivy override (pass --yes)"; fi;;
+    google)
+      new=$(echo "$cur" | tr ':' '\n' | grep -vx "$PROJECTIVY_A11Y" | awk NF | paste -sd: -)
+      if [ $yes = 1 ]; then
+        if [ -n "$new" ]; then S settings put secure enabled_accessibility_services "$new"
+        else S settings delete secure enabled_accessibility_services >/dev/null; S settings put secure accessibility_enabled 0; fi
+        printf '%s\thome\tgoogle-tv\t-\n' "$(date +%FT%T)" >> "$LOG"; cmd_home status
+      else echo "would turn off Projectivy override, Google TV home returns (pass --yes)"; fi;;
+    *) die "home status|projectivy|google";;
+  esac
+}
+
 cmd_show() { # show every group with live state
   pick_device
   local g p risk st
@@ -266,6 +299,6 @@ cmd_show() { # show every group with live state
 usage() { sed -n 's/^cmd_\([a-z]*\)() *{ *#* *\(.*\)/  \1  \2/p' "$0"; }
 
 case "${1:-}" in
-  connect|snapshot|diff|apply|verify|reapply|restore|dns|show) c="$1"; shift; "cmd_$c" "$@";;
+  connect|snapshot|diff|apply|verify|reapply|restore|dns|home|show) c="$1"; shift; "cmd_$c" "$@";;
   *) echo "usage: ./tv.sh <command>"; usage; exit 1;;
 esac
