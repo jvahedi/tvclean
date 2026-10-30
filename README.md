@@ -68,17 +68,28 @@ native-tracking option). Watch the log a day; allow any Sony update domains that
 
 Don't use Mullvad DNS — its public encrypted resolvers shut down 2026-11-02.
 
-## Home screen (current: Projectivy, set up 2026-10-30)
+## Home screen (current: Projectivy only, 2026-10-30)
 
-Google TV ignores `set-home-activity`, so Projectivy's **Override current launcher** catches
-Home through its accessibility service. Google TV stays installed and enabled.
+Google TV's home (`launcherx`) and the setup wizard (`setupwraith`) are **disabled**
+(`groups/home.txt`), so every Home press, wake from screensaver and reboot lands on
+Projectivy. Keeping both (Projectivy's accessibility override) let Google TV come back
+after the screensaver.
 
-- Switch back: `./tv.sh home google --yes` (or TV Settings → Accessibility → Projectivy off).
-- Survives reboots (checked).
-- Layout: TV Apps (9 favorites, Google TV order) → Watch Next (= Continue Watching) →
-  Inputs → Settings. Everything else is hidden from the row, still in *All apps*.
-- Projectivy permissions: TV listings **allowed** (feeds Watch Next); photos, notification
-  access, usage/crash reports **declined**.
+- **Order matters:** disable setupwraith *before* launcherx. The reverse order caused a
+  HOME relaunch loop (2,465 launches) that pegged the CPU and dropped Wi-Fi; `apply` now
+  refuses it. `restore` re-enables launcherx first, then setupwraith.
+- Switch back to Google TV: `./tv.sh restore com.google.android.apps.tv.launcherx --yes`
+  then `./tv.sh restore com.google.android.tungsten.setupwraith --yes`.
+- Still works: Input button (Sony's input bar), voice on the remote mic, full Settings
+  (Projectivy → Settings row → Android settings).
+- **Lost:** the remote's ⚙ quick-settings panel (it lived in launcherx; ⚙ sends
+  TOGGLE_NOTIFICATION_HANDLER_PANEL and nothing else handles it). Projectivy can't remap
+  keys; a key-mapper app (e.g. Button Mapper) could.
+- Layout: TV Apps (Netflix, Paramount+, Prime Video, HBO Max, YouTube, Apple TV, Disney+,
+  STARZ, Hulu) → Watch Next → Inputs → Settings; other apps hidden, in *All apps*.
+- Projectivy permissions: TV listings allowed; photos, notifications, usage/crash reports
+  declined. Its accessibility service is still on (harmless; `./tv.sh home google` turns
+  it off).
 
 ## After a firmware update
 

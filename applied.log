@@ -11,3 +11,5 @@
 2026-10-30T02:16:10	disable	com.sony.dtv.sonyselect	bloatware
 2026-10-30T02:19:46	disable	com.sony.dtv.fingerprinterserver	tracking
 2026-10-30T02:23:25	dns-on	dns.adguard-dns.com	1
+2026-10-30T10:19:58	disable	com.google.android.apps.tv.launcherx	home
+2026-10-30T10:20:24	disable	com.google.android.tungsten.setupwraith	home

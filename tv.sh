@@ -135,6 +135,10 @@ cmd_apply() { # apply <group> [--only pkg] [--yes] — safe packages only; "test
   if [ -n "$only" ]; then
     echo "$entries" | awk '{print $1}' | grep -qx "$only" || die "$only is not in group $group"
     pkgs="$only"
+    # see groups/home.txt: launcherx off while setupwraith is on = HOME relaunch loop
+    if [ "$only" = com.google.android.apps.tv.launcherx ] && [ "$(pkg_state com.google.android.tungsten.setupwraith)" = enabled ]; then
+      die "disable com.google.android.tungsten.setupwraith first (HOME loop otherwise)"
+    fi
   else
     pkgs=$(echo "$entries" | awk '$2=="safe"{print $1}')
     skipped=$(echo "$entries" | awk '$2!="safe"{print $1}')

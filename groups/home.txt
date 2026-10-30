@@ -1,7 +1,16 @@
 # home — the home screen.
 # Format: package   risk   # note
 # PREREQUISITE: a user-installed launcher (e.g. Projectivy). apply refuses without one.
-# NEVER uninstall the replacement while this is disabled — you'd have no home screen.
+# NEVER uninstall the replacement while these are disabled — you'd have no home screen.
 # Alternative with no adb: Settings → Accounts → your account → Apps only mode.
+#
+# ORDER MATTERS — setupwraith FIRST. With launcherx off but setupwraith on, its
+# RecoveryActivity becomes HOME, finishes itself, gets relaunched: a tight loop
+# (2,465 launches on 2026-10-30) that pegged the CPU and dropped Wi-Fi.
+# Restore in the reverse order (launcherx first, then setupwraith).
+#
+# Losing launcherx also loses the remote's ⚙ quick-settings panel (it lives in
+# launcherx); remap ⚙ in Projectivy → Remote Control instead.
 
-com.google.android.apps.tv.launcherx   test   # stock Google TV home (sponsored rows)
+com.google.android.tungsten.setupwraith   test   # Google TV setup wizard; its RecoveryActivity grabs HOME once launcherx is off
+com.google.android.apps.tv.launcherx      test   # stock Google TV home (sponsored rows)
