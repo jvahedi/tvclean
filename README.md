@@ -96,6 +96,14 @@ Lessons (why the modes look like this):
 - Projectivy permissions: TV listings allowed; photos, notifications, usage/crash reports
   declined.
 
+## Screensaver (2026-10-30)
+One screensaver: **Sony Living Decor** (`screensaver_components`), after 10 min without input;
+standby after ~3 h 55 min of screensaver; auto-off after 24 h without interaction. Google
+Ambient (`dreamx`) is only the fallback default. Projectivy's **Launcher Idle Mode** is
+**off** (Appearance → Launcher Idle Mode → timeout 0) — it used to fade the UI + show a
+static clock after ~5 min, a small burn-in risk on this OLED. Projectivy's "Prevent system
+screensaver" stays off so Sony's always takes over.
+
 ## Apps (2026-10-30)
 Uninstalled (never opened Aug 28–Oct 30): Pluto TV, Tubi, The Roku Channel, Haystack News.
 Disabled, sign-in kept (`groups/apps.txt`): Peacock, YouTube TV, Plex, PS Remote Play.
